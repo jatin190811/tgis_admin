@@ -1,2 +1,2 @@
-export const mediaurl  = 'http://146.190.30.14:8090'
-export const url  = 'http://146.190.30.14:8090/api/v1/'
+export const mediaurl  = 'http://134.209.153.76:8090'
+export const url  = 'http://134.209.153.76:8090/api/v1/'

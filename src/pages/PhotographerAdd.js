@@ -77,7 +77,7 @@ function Home() {
     }
 
     if (ameneties.length < 1) {
-      return NotificationManager.error('Ameneties not found', 'Error');
+      req['ameneties'] = []
     } else {
       req['ameneties'] = ameneties.map(i => i.text)
     }
@@ -149,11 +149,7 @@ function Home() {
                     onChange={(e) => setState({ ...state, isFeatured: state.isFeatured ? false : true })}
                   />
                   <br />
-                  <Form.Check
-                    label="Execuisite"
-                    name="group1"
-                    onChange={(e) => setState({ ...state, execuisite: state.execuisite ? false : true })}
-                  />
+                  
                   <br />
                   <Form.Check
                     label="Inhouse"
@@ -190,7 +186,7 @@ function Home() {
 
                 <Form.Group className="mb-3" controlId="formBasicEmail">
                   <Form.Label>Price</Form.Label>
-                  <Form.Control type="text" placeholder="Enter Price in Rs" onChange={(e) => setState({ ...state, price: e.target.value })} />
+                  <Form.Control type="Number" placeholder="Enter Price in Rs" onChange={(e) => setState({ ...state, price: e.target.value })} />
                 </Form.Group>
 
                 <Form.Group className="mb-3" controlId="formBasicEmail">
