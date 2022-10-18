@@ -128,7 +128,7 @@ function Home() {
     }
 
     if (ameneties.length < 1) {
-      req['ameneties'] = []
+      return NotificationManager.error('Ameneties not found', 'Error');
     } else {
       req['ameneties'] = ameneties.map(i => i.text)
     }
@@ -197,14 +197,14 @@ function Home() {
                   <Form.Check
                     defaultChecked={state.isFeatured}
                     label="Featured"
-                    name="group1"
+                    name="group1" type="radio"
                     onChange={(e) => setState({ ...state, isFeatured: state.isFeatured ? false : true })}
                   />
                   <br />
                   <Form.Check
                     defaultChecked={state.execuisite}
                     label="Execuisite"
-                    name="group1"
+                    name="group1" type="radio"
                     onChange={(e) => setState({ ...state, execuisite: state.execuisite ? false : true })}
                   />
                   <br />
@@ -212,7 +212,7 @@ function Home() {
                     defaultChecked={state.inhouse}
 
                     label="Inhouse"
-                    name="group1"
+                    name="group1" type="radio"
                     onChange={(e) => setState({ ...state, inhouse: state.inhouse ? false : true })}
                   />
                   <br />
@@ -221,14 +221,14 @@ function Home() {
 
 
 
-                <Form.Group className="mb-3" controlId="formBasicEmail">
-                  <Form.Label>Type</Form.Label>
-                  <Form.Control defaultValue={state.type} type="text" placeholder="Enter Type" onChange={(e) => setState({ ...state, type: e.target.value })} />
-                </Form.Group>
 
                 <Form.Group className="mb-3" controlId="formBasicEmail">
                   <Form.Label>Sub Type</Form.Label>
-                  <Form.Control defaultValue={state.sub_cat} type="text" placeholder="Enter Sub Type" onChange={(e) => setState({ ...state, sub_cat: e.target.value })} />
+                  <Form.Select onChange={(e) => setState({ ...state, sub_cat: e.target.value })} aria-label="Default select example">
+                    <option> -- Select Subcategory -- </option>
+                    <option selected={state.sub_cat=='Cinema/Video'} value="Cinema/Video">Cinema/Video</option>
+                    <option selected={state.sub_cat=='Pre Wedding Shoot'} value='Pre Wedding Shoot'>Pre Wedding Shoot</option>
+                  </Form.Select>
                 </Form.Group>
 
 

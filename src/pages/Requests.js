@@ -95,9 +95,11 @@ function Home() {
                             <tr>
                               <td>{item.brand_name}</td>
                               <td>{item.email}</td>
-                              <td>{item.phone}</td>
-                              <td>{item.type}</td>
+                              <td>{item.number}</td>
+                              <td>{item.budget}</td>
                               <td>{item.city}</td>
+                              <td>{item.personType}</td>
+                              <td>{item.weddingDate}</td>
                               <td>
                                 <button className='btn btn-danger  btn-sm' onClick={(e) => {
                                   e.preventDefault();

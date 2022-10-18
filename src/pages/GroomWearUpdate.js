@@ -40,16 +40,16 @@ function Home() {
   useEffect(() => {
     axios.post(url + 'groom/' + id, {}).then(resp => {
       let response = structuredClone(resp?.data?.data)
-     
-      if(resp?.data?.data['specifications']) {
+
+      if (resp?.data?.data['specifications']) {
         response['inhouse'] = resp?.data?.data['specifications']['inhouse'] ? resp?.data?.data['specifications']['inhouse'] : false
       } else {
         response['inhouse'] = false
       }
-     
-     
+
+
       response['specifications'] = []
-      if(resp?.data?.data['specifications']){
+      if (resp?.data?.data['specifications']) {
         Object.keys(resp?.data?.data['specifications']).forEach(i => {
           response['specifications'].push({ [i]: resp?.data?.data['specifications'][i] })
         })
@@ -61,13 +61,13 @@ function Home() {
       })
 
       response.ameneties = []
-      if(resp?.data?.data['ameneties']){
+      if (resp?.data?.data['ameneties']) {
         Object.keys(resp?.data?.data['ameneties']).forEach((i, k) => {
           response['ameneties'].push({ id: k + "", text: resp?.data?.data['ameneties'][i] })
         })
       }
-      if(!response.detailedPrice) {
-        response.detailedPrice =  {
+      if (!response.detailedPrice) {
+        response.detailedPrice = {
           tag3: '',
           tag2: [],
           tag1: []
@@ -135,7 +135,7 @@ function Home() {
     }
 
     if (ameneties.length < 1) {
-      req['ameneties'] = []
+      return NotificationManager.error('Ameneties not found', 'Error');
     } else {
       req['ameneties'] = ameneties.map(i => i.text)
     }
@@ -194,7 +194,7 @@ function Home() {
             <div className='working-area'>
               <br /><br />
               <Form>
-              <Form.Group className="mb-3" controlId="formBasicEmail">
+                <Form.Group className="mb-3" controlId="formBasicEmail">
                   <Form.Label>Name</Form.Label>
                   <Form.Control defaultValue={state.name} type="text" placeholder="Enter Name" onChange={(e) => setState({ ...state, name: e.target.value })} />
                 </Form.Group>
@@ -203,14 +203,14 @@ function Home() {
                   <Form.Check
                     defaultChecked={state.isFeatured}
                     label="Featured"
-                    name="group1"
+                    name="group1" type="radio"
                     onChange={(e) => setState({ ...state, isFeatured: state.isFeatured ? false : true })}
                   />
                   <br />
                   <Form.Check
                     defaultChecked={state.execuisite}
                     label="Execuisite"
-                    name="group1"
+                    name="group1" type="radio"
                     onChange={(e) => setState({ ...state, execuisite: state.execuisite ? false : true })}
                   />
                   <br />
@@ -218,23 +218,21 @@ function Home() {
                     defaultChecked={state.inhouse}
 
                     label="Inhouse"
-                    name="group1"
+                    name="group1" type="radio"
                     onChange={(e) => setState({ ...state, inhouse: state.inhouse ? false : true })}
                   />
                   <br />
 
                 </Form.Group>
 
-
-
-                <Form.Group className="mb-3" controlId="formBasicEmail">
-                  <Form.Label>Type</Form.Label>
-                  <Form.Control defaultValue={state.type} type="text" placeholder="Enter Type" onChange={(e) => setState({ ...state, type: e.target.value })} />
-                </Form.Group>
-
                 <Form.Group className="mb-3" controlId="formBasicEmail">
                   <Form.Label>Sub Type</Form.Label>
-                  <Form.Control defaultValue={state.sub_cat} type="text" placeholder="Enter Sub Type" onChange={(e) => setState({ ...state, sub_cat: e.target.value })} />
+                  <Form.Select onChange={(e) => setState({ ...state, sub_cat: e.target.value })} aria-label="Default select example">
+                    <option> -- Select Subcategory -- </option>
+                    <option selected={state.sub_cat == 'Shervani'} value="Shervani">Shervani</option>
+                    <option selected={state.sub_cat == 'Wedding Suits/Tuxes'} value='Wedding Suits/Tuxes'>Wedding Suits/Tuxes</option>
+                    <option selected={state.sub_cat == 'Sherwani On Rent'} value="Sherwani On Rent">Sherwani On Rent</option>
+                  </Form.Select>
                 </Form.Group>
 
 
@@ -407,7 +405,7 @@ function Home() {
                       <div className='col' style={{ marginBottom: 5 }}>
                         <Form.Control
                           placeholder="Type"
-                          defaultValue={state.detailedPrice?.tag1[0]}                        
+                          defaultValue={state.detailedPrice?.tag1[0]}
                           onChange={e => {
                             state.detailedPrice['tag1'][0] = e.target.value
                           }}
@@ -453,7 +451,7 @@ function Home() {
                   }} >Submit</button>
                 </Form.Group>
 
-                </Form>
+              </Form>
             </div>
           </div>
         </section>

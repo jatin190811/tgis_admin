@@ -27,6 +27,7 @@ function Home() {
   const [state, setState] = useState({
     area_avail: [{ type: '', capacity: '' }],
     specifications: [{ '': '' }],
+    type:'makeup',
     facts: [{ ques: '', ans: '' }],
     detailedPrice: {
       tag3: '',
@@ -62,8 +63,38 @@ function Home() {
 
 
   const doSubmit = () => {
+  
+    
+
+    const formData = new FormData();
+
     let req = structuredClone(state)
     if (!req.name) return NotificationManager.error('Name not found', 'Error');
+
+    if (state.selectedFile && state.selectedFile.name) {
+      formData.append(
+        "images",
+        state.selectedFile,
+        state.selectedFile.name
+      );
+    } else {
+      return NotificationManager.error('Image not found', 'Error');
+    }
+
+    if (state.selectedFileVideo && state.selectedFileVideo.name) {
+      formData.append(
+        "videos",
+        state.selectedFileVideo,
+        state.selectedFileVideo.name
+      );
+    } 
+
+    delete req['selectedFile']
+    delete req['selectedFileVideo']
+
+
+
+
     if (!req.price) return NotificationManager.error('Price not found', 'Error');
     if (!req.type) return NotificationManager.error('Type not found', 'Error');
     if (!req.sub_cat) return NotificationManager.error('Sub Type not found', 'Error');
@@ -77,7 +108,7 @@ function Home() {
     }
 
     if (ameneties.length < 1) {
-      req['ameneties'] = []
+      return NotificationManager.error('Ameneties not found', 'Error');
     } else {
       req['ameneties'] = ameneties.map(i => i.text)
     }
@@ -103,23 +134,46 @@ function Home() {
     if (!req.detailedPrice || !req.detailedPrice.tag2 || req.detailedPrice.tag2.length < 1) return NotificationManager.error('Detailed Price tag 2 id not Completed', 'Error');
     if (req.inhouse) req.specifications['inhouse'] = req.inhouse ? req.inhouse : false
 
+    req['specifications'] = JSON.stringify(req['specifications']);
+    req['area_avail'] = JSON.stringify(req['area_avail']);
+    req['facts'] = JSON.stringify(req['facts']);
+    req['contact_details'] = JSON.stringify(req['contact_details']);
+    req['detailedPrice'] = JSON.stringify(req['detailedPrice']);
+    req['tags'] = JSON.stringify(req['tags']);
+    req['ameneties'] = JSON.stringify(req['ameneties']);
 
+
+    for (var key in req) {
+      formData.append(key, req[key]);
+    }
    
-    axios.post(url + 'bridal-makeup/create', req, {
+    axios.post(url + 'bridal-makeup/create', formData, {
       headers: {
         'x-access-token': localStorage.getItem('token')
       }
     }).then(resp => {
       if (resp.data.status == 'success') {
         return NotificationManager.success('Successfully Added', 'Success');
+  
       } else {
         return NotificationManager.error(resp.data.message, 'Error');
       }
     })
-
-
-
   }
+
+
+
+  const onFileChange = event => {
+    console.log(event.target.files)
+    setState({ ...state, selectedFile: event.target.files[0] });
+  };
+
+
+  const onFileChangeVideo = event => {
+    console.log(event.target.files)
+    setState({ ...state, selectedFileVideo: event.target.files[0] });
+  };
+
 
   return (
     <>
@@ -141,34 +195,45 @@ function Home() {
                   <Form.Control type="text" placeholder="Enter Name" onChange={(e) => setState({ ...state, name: e.target.value })} />
                 </Form.Group>
 
+
+                <h3>Image</h3>
+                <input className='form-control' type="file" name="images" onChange={onFileChange} />
+                <br />
+
+                <h3>Upload Video</h3>
+                <input className='form-control' type="file" name="videos" onChange={onFileChangeVideo} />
+                <br />
+
+
                 <Form.Group className="mb-3" controlId="formBasicEmail">
                   <Form.Check
                     label="Featured"
-                    name="group1"
+                    name="group1" type="radio"
                     onChange={(e) => setState({ ...state, isFeatured: state.isFeatured ? false : true })}
                   />
                   <br />
-                  
+                  <Form.Check
+                    label="Execuisite"
+                    name="group1" type="radio"
+                    onChange={(e) => setState({ ...state, execuisite: state.execuisite ? false : true })}
+                  />
                   <br />
                   <Form.Check
                     label="Inhouse"
-                    name="group1"
+                    name="group1" type="radio"
                     onChange={(e) => setState({ ...state, inhouse: state.inhouse ? false : true })}
                   />
                   <br />
 
                 </Form.Group>
 
-
-
-                <Form.Group className="mb-3" controlId="formBasicEmail">
-                  <Form.Label>Type</Form.Label>
-                  <Form.Control type="text" placeholder="Enter Type" onChange={(e) => setState({ ...state, type: e.target.value })} />
-                </Form.Group>
-
                 <Form.Group className="mb-3" controlId="formBasicEmail">
                   <Form.Label>Sub Type</Form.Label>
-                  <Form.Control type="text" placeholder="Enter Sub Type" onChange={(e) => setState({ ...state, sub_cat: e.target.value })} />
+                  <Form.Select onChange={(e) => setState({ ...state, sub_cat: e.target.value })} aria-label="Default select example">
+                    <option> -- Select Subcategory -- </option>
+                    <option value="Bridal Makeup">Bridal Makeup</option>
+                    <option value='Family Makeup'>Family Makeup</option>
+                  </Form.Select>
                 </Form.Group>
 
 
@@ -418,7 +483,7 @@ function Home() {
                   <button className='btn btn-primary' onClick={(e) => {
                     e.preventDefault()
                     doSubmit()
-                  }} >Submit</button>
+                  }} >Next</button>
                 </Form.Group>
 
 

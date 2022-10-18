@@ -4,7 +4,8 @@ import axios from 'axios';
 import Button from 'react-bootstrap/Button';
 import Modal from 'react-bootstrap/Modal';
 import { NotificationContainer, NotificationManager } from 'react-notifications';
-
+import Form from 'react-bootstrap/Form';
+import InputGroup from 'react-bootstrap/InputGroup';
 
 import Header from '../global/Header';
 import Sidebar from '../global/Sidebar';
@@ -16,11 +17,11 @@ import { url } from '../env'
 
 function Home() {
   let navigate = useNavigate();
-  let [state, setState] = useState({});
+  let [state, setState] = useState({ bridal_wearsShow:[], page : 1});
 
   useEffect(() => {
     axios.post(url + 'bridal-wears', {}).then(resp => {
-      setState({ ...state, bridal_wears: resp?.data?.data })
+      setState({ ...state, bridal_wears: resp?.data?.data, bridal_wearsShow: resp?.data?.data })
     })
   }, [])
 
@@ -41,7 +42,7 @@ function Home() {
     }).then(resp => {
       if (resp.data.status != 'error') {
         axios.post(url + 'bridal-wears', {}).then(resp => {
-          setState({ ...state, bridal_wears: resp?.data?.data,  deleteRef: null, showDeleteModal: false, })
+          setState({ ...state, bridal_wears: resp?.data?.data, bridal_wearsShow: resp?.data?.data, deleteRef: null, showDeleteModal: false, })
           NotificationManager.success('Successfully Deleted', 'Success');
         })
       } else {
@@ -56,6 +57,30 @@ function Home() {
       }
     })
   }
+  useEffect(() => {
+    if (state.searchKey) {
+      let vanues = JSON.parse(JSON.stringify(state.bridal_wears));
+      vanues = vanues.filter(o => o.address.includes(state.searchKey) ||
+        o.name.includes(state.searchKey) ||
+        o.name.includes(state.searchKey) ||
+        o.contact_details?.email.includes(state.searchKey) ||
+        o.contact_details?.number.includes(state.searchKey)
+      );
+      console.log(vanues)
+      setState({ ...state, bridal_wearsShow: vanues })
+    } else {
+      setState({ ...state, bridal_wearsShow: state.bridal_wears })
+    }
+
+  }, [state.searchKey])
+
+  useEffect(() => {
+    axios.post(url + 'bridal-wears?page='+state.page, {}).then(resp => {
+      setState({ ...state, bridal_wears: resp?.data?.data, bridal_wearsShow: resp?.data?.data, searchKey: '' })
+    })
+    
+  }, [state.page])
+
 
   return (
     <>
@@ -64,7 +89,7 @@ function Home() {
       <main>
         <Sidebar />
         <section id='page-content'>
-          
+
           <div className='main-area'>
             <div id='page-title'>
               <h1>Bridal Wears</h1>
@@ -74,9 +99,22 @@ function Home() {
               {/*  <!-- Working area start--> */}
               <div className='row'>
                 <div className='col-12'>
-                  <button onClick={()=>navigate('/bridalwear/add')} className='btn btn-primary pull-right'>Add New</button><br /><br />
+                  <button onClick={() => navigate('/bridalwear/add')} className='btn btn-primary pull-right'>Add New</button><br /><br />
                 </div>
-                {state.bridal_wears && state.bridal_wears.length ? <div class="table-responsive">
+                <div className='row'>
+                  <div className='col-md-4'>
+                    <InputGroup className="mb-3">
+                      <Form.Control
+                        placeholder="search Key"
+                        aria-label="Search Key"
+                        aria-describedby="basic-addon1"
+                        value={state.searchKey}
+                        onChange={(e) => { setState({ ...state, searchKey: e.target.value }) }}
+                      />
+                    </InputGroup>
+                  </div>
+                </div>
+                {state.bridal_wearsShow && state.bridal_wearsShow.length ? <div class="table-responsive">
 
                   <table class="table table-hover table-bordered table table-striped">
                     <thead>
@@ -91,7 +129,7 @@ function Home() {
                     </thead>
                     <tbody>
                       {
-                        state.bridal_wears.map((item, index) => {
+                        state.bridal_wearsShow.map((item, index) => {
                           return (
                             <tr>
                               <td>{item.name}</td>
@@ -106,10 +144,10 @@ function Home() {
                                 <button className='btn btn-warning btn-sm' onClick={() => {
                                   navigate('/bridalwear/media/' + item._id)
                                 }}>Media</button>&nbsp;
-                                 <button className='btn btn-warning btn-sm' onClick={() => {
+                                <button className='btn btn-warning btn-sm' onClick={() => {
                                   navigate('/bridalwear/update/' + item._id)
                                 }}>Update</button>&nbsp;
-                                
+
                                 <button className='btn btn-danger  btn-sm' onClick={(e) => {
                                   e.preventDefault();
                                   deleteItem(item)
@@ -122,12 +160,19 @@ function Home() {
 
                     </tbody>
                   </table>
+
                 </div> :
                   <div className='col'>
                     <div className='alert alert-info'>No Result Found</div>
                   </div>
                 }
               </div>
+              <nav aria-label="Page navigation example">
+                <ul class="pagination">
+                  { state.page > 1 ? <li class="page-item" ><button onClick={() => { if (state.page > 0) setState({ ...state, page: state.page - 1 }) }} class="page-link" href="#">Previous</button></li> : null }
+                  { state.bridal_wearsShow?.length ? <li class="page-item" ><button onClick={() => { setState({ ...state, page: state.page + 1 }) }} class="page-link" href="#">Next</button></li> : null }
+                </ul>
+              </nav>
               {/*  <!-- Working area end--> */}
             </div>
           </div>

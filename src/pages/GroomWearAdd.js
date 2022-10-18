@@ -27,11 +27,12 @@ function Home() {
   const [state, setState] = useState({
     area_avail: [{ type: '', capacity: '' }],
     specifications: [{ '': '' }],
+    type: 'groomwear',
     facts: [{ ques: '', ans: '' }],
-    detailedPrice : {
+    detailedPrice: {
       tag3: '',
-      tag1 : [],
-      tag2 : []
+      tag1: [],
+      tag2: []
     }
   });
   const [editorState, setEditorState] = useState(null);
@@ -40,7 +41,7 @@ function Home() {
 
   const onEditorStateChange = (e) => {
     setEditorState(e)
-    setState({...state, description : draftToHtml(convertToRaw(editorState.getCurrentContent()))})
+    setState({ ...state, description: draftToHtml(convertToRaw(editorState.getCurrentContent())) })
   }
 
 
@@ -69,17 +70,17 @@ function Home() {
     if (!req.sub_cat) return NotificationManager.error('Sub Type not found', 'Error');
     if (!req.contact_details?.number) return NotificationManager.error('Contact Number not found', 'Error');
     if (!req.contact_details?.email) return NotificationManager.error('Contact Email not found', 'Error');
-    if(!req.description)  return  NotificationManager.error('Description not found', 'Error');
+    if (!req.description) return NotificationManager.error('Description not found', 'Error');
     if (tags.length < 1) {
       return NotificationManager.error('Tags not found', 'Error');
     } else {
-      req['tags'] = tags.map(i=>i.text)
+      req['tags'] = tags.map(i => i.text)
     }
 
     if (ameneties.length < 1) {
-      req['ameneties'] = []
+      return NotificationManager.error('Ameneties not found', 'Error');
     } else {
-      req['ameneties'] = ameneties.map(i=>i.text)
+      req['ameneties'] = ameneties.map(i => i.text)
     }
 
     if (!req.address) return NotificationManager.error('Address not found', 'Error');
@@ -89,7 +90,7 @@ function Home() {
       if (!Object.keys(req.specifications[i])[0] || !Object.values(req.specifications[i])[0]) {
         return NotificationManager.error('Specifications are not Completed', 'Error');
       }
-       nsub[Object.keys(req.specifications[i])[0]] = Object.values(req.specifications[i])[0]
+      nsub[Object.keys(req.specifications[i])[0]] = Object.values(req.specifications[i])[0]
     }
     req.specifications = nsub
     for (let i = 0; i < req.facts.length; i++) {
@@ -101,15 +102,15 @@ function Home() {
     if (!req.detailedPrice || !req.detailedPrice['tag3']) return NotificationManager.error('Detailed Price lable id not Completed', 'Error');
     if (!req.detailedPrice || !req.detailedPrice.tag1 || req.detailedPrice.tag1.length < 1) return NotificationManager.error('Detailed Price tag 1 id not Completed', 'Error');
     if (!req.detailedPrice || !req.detailedPrice.tag2 || req.detailedPrice.tag2.length < 1) return NotificationManager.error('Detailed Price tag 2 id not Completed', 'Error');
-    if(req.inhouse)    req.specifications['inhouse'] = req.inhouse ?  req.inhouse : false
+    if (req.inhouse) req.specifications['inhouse'] = req.inhouse ? req.inhouse : false
 
 
- 
-    axios.post(url+'groom/create',req, {
-      headers : {
-        'x-access-token' : localStorage.getItem('token')
+
+    axios.post(url + 'groom/create', req, {
+      headers: {
+        'x-access-token': localStorage.getItem('token')
       }
-    }).then(resp=>{
+    }).then(resp => {
       if (resp.data.status == 'success') {
         return NotificationManager.success('Successfully Added', 'Success');
       } else {
@@ -128,7 +129,7 @@ function Home() {
       <main>
         <Sidebar />
         <section id='page-content'>
-          
+
           <div className='main-area'>
             <div id='page-title'>
               <h1>Groom Wear </h1>
@@ -144,15 +145,19 @@ function Home() {
                 <Form.Group className="mb-3" controlId="formBasicEmail">
                   <Form.Check
                     label="Featured"
-                    name="group1"
+                    name="group1" type="radio"
                     onChange={(e) => setState({ ...state, isFeatured: state.isFeatured ? false : true })}
                   />
                   <br />
-                  
+                  <Form.Check
+                    label="Execuisite"
+                    name="group1" type="radio"
+                    onChange={(e) => setState({ ...state, execuisite: state.execuisite ? false : true })}
+                  />
                   <br />
                   <Form.Check
                     label="Inhouse"
-                    name="group1"
+                    name="group1" type="radio"
                     onChange={(e) => setState({ ...state, inhouse: state.inhouse ? false : true })}
                   />
                   <br />
@@ -161,14 +166,16 @@ function Home() {
 
 
 
-                <Form.Group className="mb-3" controlId="formBasicEmail">
-                  <Form.Label>Type</Form.Label>
-                  <Form.Control type="text" placeholder="Enter Type" onChange={(e) => setState({ ...state, type: e.target.value })} />
-                </Form.Group>
+
 
                 <Form.Group className="mb-3" controlId="formBasicEmail">
                   <Form.Label>Sub Type</Form.Label>
-                  <Form.Control type="text" placeholder="Enter Sub Type" onChange={(e) => setState({ ...state, sub_cat: e.target.value })} />
+                  <Form.Select onChange={(e) => setState({ ...state, sub_cat: e.target.value })} aria-label="Default select example">
+                    <option> -- Select Subcategory -- </option>
+                    <option value="Shervani">Shervani</option>
+                    <option value='Wedding Suits/Tuxes'>Wedding Suits/Tuxes</option>
+                    <option value="Sherwani On Rent">Sherwani On Rent</option>
+                  </Form.Select>
                 </Form.Group>
 
 
@@ -238,7 +245,7 @@ function Home() {
                   />
                 </Form.Group>
 
-               
+
 
                 <Form.Group className="mb-3" controlId="formBasicEmail">
                   <Form.Label>Specifications <i className='fa fa-plus' onClick={() => {
@@ -379,7 +386,7 @@ function Home() {
                   <button className='btn btn-primary' onClick={(e) => {
                     e.preventDefault()
                     doSubmit()
-                  }} >Submit</button>
+                  }} >Next</button>
                 </Form.Group>
 
 

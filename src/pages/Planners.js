@@ -4,7 +4,8 @@ import axios from 'axios';
 import Button from 'react-bootstrap/Button';
 import Modal from 'react-bootstrap/Modal';
 import { NotificationContainer, NotificationManager } from 'react-notifications';
-
+import Form from 'react-bootstrap/Form';
+import InputGroup from 'react-bootstrap/InputGroup';
 
 import Header from '../global/Header';
 import Sidebar from '../global/Sidebar';
@@ -16,11 +17,11 @@ import { url } from '../env'
 
 function Home() {
   let navigate = useNavigate();
-  let [state, setState] = useState({});
+  let [state, setState] = useState({vanuesShow: [], page: 1});
 
   useEffect(() => {
     axios.post(url + 'planner', {}).then(resp => {
-      setState({ ...state, vanues: resp?.data?.data })
+      setState({ ...state, vanues: resp?.data?.data, vanuesShow: resp?.data?.data  })
     })
   }, [])
 
@@ -41,7 +42,7 @@ function Home() {
     }).then(resp => {
       if (resp.data.status != 'error') {
         axios.post(url + 'planner', {}).then(resp => {
-          setState({ ...state, vanues: resp?.data?.data,  deleteRef: null, showDeleteModal: false, })
+          setState({ ...state, vanues: resp?.data?.data, vanuesShow: resp?.data?.data ,  deleteRef: null, showDeleteModal: false, })
           NotificationManager.success('Successfully Deleted', 'Success');
         })
       } else {
@@ -56,6 +57,30 @@ function Home() {
       }
     })
   }
+
+  useEffect(()=>{
+    if(state.searchKey){
+      let vanues = JSON.parse(JSON.stringify(state.vanues));
+       vanues = vanues.filter(o => o.address.includes(state.searchKey) ||
+             o.name.includes(state.searchKey) ||
+             o.name.includes(state.searchKey) ||
+             o.contact_details?.email.includes(state.searchKey) ||
+             o.contact_details?.number.includes(state.searchKey) 
+        );
+      console.log(vanues)
+      setState({...state, vanuesShow: vanues})
+    } else {
+      setState({...state, vanuesShow: state.vanues})
+    }
+
+  },[state.searchKey])
+
+  useEffect(() => {
+    axios.post(url + 'planner?page='+state.page, {}).then(resp => {
+      setState({ ...state, vanues: resp?.data?.data, vanuesShow: resp?.data?.data, searchKey: '' })
+    })
+    
+  }, [state.page])
 
   return (
     <>
@@ -76,7 +101,20 @@ function Home() {
                 <div className='col-12'>
                   <button onClick={()=>navigate('/planner/add')} className='btn btn-primary pull-right'>Add New</button><br /><br />
                 </div>
-                {state.vanues && state.vanues.length ? <div class="table-responsive">
+                <div className='row'>
+                    <div className='col-md-4'>
+                      <InputGroup className="mb-3">
+                        <Form.Control
+                          placeholder="search Key"
+                          aria-label="Search Key"
+                          aria-describedby="basic-addon1"
+                          onChange={(e)=>{ setState({...state, searchKey : e.target.value})}}
+                        />
+                      </InputGroup>
+                    </div>
+                  </div>
+                  {state.vanuesShow && state.vanuesShow.length ? <div class="table-responsive">
+             
 
                   <table class="table table-hover table-bordered table table-striped">
                     <thead>
@@ -91,7 +129,7 @@ function Home() {
                     </thead>
                     <tbody>
                       {
-                        state.vanues.map((item, index) => {
+                        state.vanuesShow.map((item, index) => {
                           return (
                             <tr>
                               <td>{item.name}</td>
@@ -128,6 +166,12 @@ function Home() {
                   </div>
                 }
               </div>
+              <nav aria-label="Page navigation example">
+                <ul class="pagination">
+                  { state.page > 1 ? <li class="page-item" ><button onClick={() => { if (state.page > 0) setState({ ...state, page: state.page - 1 }) }} class="page-link" href="#">Previous</button></li> : null }
+                  { state.vanuesShow?.length ? <li class="page-item" ><button onClick={() => { setState({ ...state, page: state.page + 1 }) }} class="page-link" href="#">Next</button></li> : null }
+                </ul>
+              </nav>
               {/*  <!-- Working area end--> */}
             </div>
           </div>
